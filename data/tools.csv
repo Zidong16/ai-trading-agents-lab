@@ -1,0 +1,13 @@
+name,bucket,category,functions,link,verified,notes
+TradingAgents (Tauric Research),open-source,LLM multi-agent framework,,https://github.com/TauricResearch/TradingAgents,no,
+FinRobot (AI4Finance),open-source,AI agent platform,,https://github.com/AI4Finance-Foundation/FinRobot,no,
+FinGPT (AI4Finance),open-source,Financial LLM,,https://huggingface.co/FinGPT,no,
+FinRL (AI4Finance),open-source,RL library,,https://github.com/AI4Finance-Foundation/FinRL,no,
+AI-Trader (HKUDS),open-source,Agent-native trading loop,,https://github.com/HKUDS/AI-Trader,no,
+Trade Ideas (Holly AI),retail,Scanner platform,,https://www.trade-ideas.com/,no,
+Composer,retail,No-code strategy builder,,https://www.composer.trade/,no,
+TrendSpider,retail,Charting & automation platform,,https://trendspider.com/,no,
+Alpaca,infra,Execution API,,https://alpaca.markets/,no,
+Alpha Vantage (MCP),infra,Data + MCP server,,https://www.alphavantage.co/,no,
+Tradier,infra,Data + brokerage API,,https://tradier.com/,no,
+StockBench,eval,LLM agent benchmark,,https://arxiv.org/abs/2510.02209,no,
