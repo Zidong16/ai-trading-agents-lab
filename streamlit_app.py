@@ -1,6 +1,6 @@
 import streamlit as st
 
-st.set_page_config(page_title="AI Trading Agents Lab", page_icon="🤖", layout="wide")
+st.set_page_config(page_title="AI Trading Agents Lab 牛牛的开心号交易员", page_icon="🤖", layout="wide")
 st.title("AI Trading Agents Lab")
 st.caption("A technical study of AI trading agents — architectures, algorithms, and "
            "engineering mechanisms. Paper-only by design: no live trading.")
