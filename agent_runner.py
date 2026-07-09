@@ -234,6 +234,43 @@ def resolve_home(explicit: Optional[str] = None) -> Optional[str]:
     return None
 
 
+def find_saved_report(
+    home: Optional[str], symbol: str, sample_dir: Optional[str] = None
+) -> tuple[Optional[Path], list[str]]:
+    """Find the newest saved ``complete_report.md`` for *symbol*.
+
+    Report directories are named ``<SYMBOL>_<suffix>`` (e.g. ``MRVL_demo``,
+    ``NVDA_2026-07-09``); a report matches only if the token before the first
+    underscore equals *symbol* (case-insensitive). Searches ``<home>/reports``
+    first (newest mtime wins), then *sample_dir* (bundled samples).
+
+    Returns ``(path_or_None, symbols_that_do_have_saved_reports)`` so the UI
+    can tell the user what is replayable instead of silently substituting a
+    report for a different ticker.
+    """
+    sym = (symbol or "").strip().upper()
+    candidates: list[Path] = []
+    if home:
+        reports = Path(home).expanduser() / "reports"
+        if reports.is_dir():
+            candidates += sorted(
+                reports.glob("*/complete_report.md"),
+                key=lambda p: p.stat().st_mtime, reverse=True,
+            )
+    if sample_dir and Path(sample_dir).is_dir():
+        candidates += sorted(Path(sample_dir).glob("*/complete_report.md"))
+
+    match: Optional[Path] = None
+    available: list[str] = []
+    for p in candidates:
+        s = p.parent.name.split("_")[0].strip().upper()
+        if s and s not in available:
+            available.append(s)
+        if match is None and s == sym:
+            match = p
+    return match, available
+
+
 def _load_env_file(home: str) -> None:
     """Load TradingAgents/.env so API keys/provider settings are available.
 

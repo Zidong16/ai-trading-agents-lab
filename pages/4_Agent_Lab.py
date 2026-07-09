@@ -160,29 +160,7 @@ def _render_result(symbol, decision, report_md, report_path, elapsed):
         st.info("Report generated, but the markdown could not be read back.")
 
 
-def _find_demo_report(home: str | None) -> Path | None:
-    """Locate a report to replay in Demo mode.
-
-    Prefers a real report generated locally under ``<home>/reports`` (most
-    relevant on your Mac); falls back to the sample bundled in the repo under
-    ``sample_reports/`` so Demo mode also works on Streamlit Cloud, where
-    TradingAgents isn't installed and nothing has been generated on disk.
-    """
-    if home:
-        reports = Path(home) / "reports"
-        if reports.is_dir():
-            local = sorted(
-                reports.glob("*/complete_report.md"),
-                key=lambda p: p.stat().st_mtime, reverse=True,
-            )
-            if local:
-                return local[0]
-    bundled = sorted(
-        (Path(__file__).resolve().parent.parent / "sample_reports").glob(
-            "*/complete_report.md"
-        )
-    )
-    return bundled[0] if bundled else None
+_SAMPLE_REPORTS_DIR = str(Path(__file__).resolve().parent.parent / "sample_reports")
 
 
 # --------------------------------------------------------------------------- #
@@ -242,20 +220,30 @@ if submitted:
                              phase="🧪")
             time.sleep(0.18)
 
-        demo_path = _find_demo_report(pf["home"])
-        report_md = None
-        if demo_path:
+        demo_path, available = runner.find_saved_report(
+            pf["home"], symbol, sample_dir=_SAMPLE_REPORTS_DIR
+        )
+        if demo_path is None:
+            st.warning(
+                f"Demo mode: no saved report for **{symbol}**. "
+                + (f"Symbols with saved reports: {', '.join(available)}. "
+                   f"Type one of those to replay it, "
+                   if available else "No saved reports found on disk. ")
+                + "or turn off Demo mode (needs a working API key) to generate "
+                  f"a fresh {symbol} report."
+            )
+        else:
             try:
                 report_md = demo_path.read_text(encoding="utf-8")
             except Exception:
                 report_md = None
-        st.info(
-            "Demo mode: progress above is simulated. Report below is a previously "
-            "generated one" + (f" (`{demo_path.parent.name}`)." if demo_path else
-                               " — none found on disk yet.")
-        )
-        _render_result(symbol, None, report_md,
-                       str(demo_path) if demo_path else None, time.time() - start)
+            st.info(
+                "Demo mode: progress above is simulated. Report below is a "
+                f"previously generated **{symbol}** report "
+                f"(`{demo_path.parent.name}`)."
+            )
+            _render_result(symbol, None, report_md, str(demo_path),
+                           time.time() - start)
 
     else:
         # Real run in a background thread; poll shared state for live progress.
