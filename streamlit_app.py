@@ -1,8 +1,10 @@
 import streamlit as st
 
 import auth
+import ui
 
 st.set_page_config(page_title="AI Trading Agents Lab", page_icon="🤖", layout="wide")
+ui.sidebar_brand()
 auth.require_auth()
 auth.logout_button()
 st.title("AI Trading Agents Lab 天真快乐的牛牛号交易员")

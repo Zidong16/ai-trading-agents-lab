@@ -17,8 +17,10 @@ import streamlit as st
 
 import auth
 import agent_runner as runner
+import ui
 
 st.set_page_config(page_title="Agent Lab", page_icon="🤖", layout="wide")
+ui.sidebar_brand()
 auth.require_auth()
 auth.logout_button()
 

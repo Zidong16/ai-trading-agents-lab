@@ -3,6 +3,8 @@ import streamlit as st
 
 st.set_page_config(page_title="Changelog", layout="wide")
 import auth
+import ui
+ui.sidebar_brand()
 auth.require_auth()
 auth.logout_button()
 st.title("Changelog")
