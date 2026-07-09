@@ -1,0 +1,16 @@
+# Secrets — never commit
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# OS
+.DS_Store
+
+# Generated reports pulled in locally (optional; keep out of git by default)
+reports/

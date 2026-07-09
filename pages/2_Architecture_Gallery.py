@@ -1,6 +1,9 @@
 import streamlit as st
 
 st.set_page_config(page_title="Architecture Gallery", layout="wide")
+import auth
+auth.require_auth()
+auth.logout_button()
 st.title("Architecture Gallery")
 st.info("Feeds from Week 2 — how agents 'think'.")
 st.markdown("""

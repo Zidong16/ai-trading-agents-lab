@@ -2,6 +2,9 @@ import pandas as pd
 import streamlit as st
 
 st.set_page_config(page_title="Tool Explorer", layout="wide")
+import auth
+auth.require_auth()
+auth.logout_button()
 st.title("Tool Explorer")
 st.caption("Week 1 deliverable: the AI-trading-agent landscape. "
            "Verify links, tag functions, expand — edit data/tools.csv in the repo.")
