@@ -9,6 +9,7 @@ UI can be exercised without an API key or spend.
 from __future__ import annotations
 
 import datetime as _dt
+import os
 import threading
 import time
 from pathlib import Path
@@ -39,14 +40,30 @@ try:
 except Exception:
     pass
 
+# On Streamlit Cloud there is no TradingAgents/.env on disk — keys and
+# TRADINGAGENTS_* overrides live in the app's Secrets instead. Mirror every
+# flat UPPERCASE string secret into the process env (setdefault: a local .env
+# / existing env always wins) so the framework's env-override mechanism and
+# provider key checks see them. Must run before preflight imports the package.
+try:
+    for _k, _v in st.secrets.items():
+        if isinstance(_v, str) and _k.isupper():
+            os.environ.setdefault(_k, _v)
+except Exception:
+    pass
+
 pf = runner.preflight(home_override)
 can_run_real = pf["importable"] and pf["api_key_present"]
 
 with st.sidebar:
     st.subheader("Engine status")
-    st.write("📁 TradingAgents:", "✅ found" if pf["home"] else "❌ not found")
     if pf["home"]:
+        st.write("📁 TradingAgents:", "✅ found")
         st.caption(pf["home"])
+    elif pf["importable"]:
+        st.write("📁 TradingAgents:", "➖ no local folder (pip-installed)")
+    else:
+        st.write("📁 TradingAgents:", "❌ not found")
     st.write("📦 Package import:", "✅ ok" if pf["importable"] else "❌ failed")
     st.write(
         f"🔑 API key ({pf.get('key_env', 'OPENAI_API_KEY')}):",

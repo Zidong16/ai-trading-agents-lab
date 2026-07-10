@@ -313,14 +313,14 @@ def preflight(home: Optional[str] = None) -> dict:
     }
     resolved = resolve_home(home)
     result["home"] = resolved
-    if not resolved:
-        result["error"] = "TradingAgents folder not found."
-        return result
-
-    _load_env_file(resolved)
-
-    if resolved not in sys.path:
-        sys.path.insert(0, resolved)
+    if resolved:
+        # Local checkout: load its .env and make the package importable from it.
+        _load_env_file(resolved)
+        if resolved not in sys.path:
+            sys.path.insert(0, resolved)
+    # No checkout is fine too (e.g. Streamlit Cloud): the package may be
+    # pip-installed via requirements.txt, with keys coming from st.secrets /
+    # environment variables instead of a .env file.
     try:
         from tradingagents.default_config import DEFAULT_CONFIG  # noqa: F401
 
@@ -331,7 +331,12 @@ def preflight(home: Optional[str] = None) -> dict:
         result["api_key_present"] = bool(os.environ.get(key_env))
         result["key_env"] = key_env
     except Exception as exc:  # pragma: no cover - depends on user env
-        result["error"] = f"Could not import tradingagents: {exc}"
+        result["error"] = (
+            f"Could not import tradingagents: {exc}"
+            if resolved else
+            "No TradingAgents folder found and the tradingagents package is "
+            f"not installed: {exc}"
+        )
     return result
 
 
@@ -388,17 +393,13 @@ def run_analysis(
     emit({})
 
     home = resolve_home(tradingagents_home)
-    if not home:
-        return RunResult(
-            ok=False, symbol=symbol, trade_date=trade_date,
-            error="Could not find your TradingAgents folder. Set TRADINGAGENTS_HOME "
-                  "or `tradingagents_home` in secrets.",
-            elapsed_sec=time.monotonic() - started,
-        )
-
-    _load_env_file(home)
-    if home not in sys.path:
-        sys.path.insert(0, home)
+    if home:
+        # Local checkout: load its .env and make it importable.
+        _load_env_file(home)
+        if home not in sys.path:
+            sys.path.insert(0, home)
+    # else: rely on a pip-installed tradingagents package (e.g. Streamlit
+    # Cloud) with keys/overrides provided via environment variables.
 
     try:
         from tradingagents.default_config import DEFAULT_CONFIG
@@ -406,7 +407,12 @@ def run_analysis(
     except Exception as exc:
         return RunResult(
             ok=False, symbol=symbol, trade_date=trade_date,
-            error=f"Failed to import tradingagents from {home}: {exc}",
+            error=(
+                f"Failed to import tradingagents from {home}: {exc}"
+                if home else
+                "tradingagents is neither installed nor found as a local "
+                f"folder: {exc}"
+            ),
             traceback=traceback.format_exc(),
             elapsed_sec=time.monotonic() - started,
         )

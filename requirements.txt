@@ -1,6 +1,8 @@
 streamlit
 pandas
 python-dotenv
-# The Agent Lab page also needs the local `tradingagents` package importable.
-# Easiest: run this app with TradingAgents' own virtualenv (which already has
-# streamlit + tradingagents). See README "Running".
+# Agent Lab: the tradingagents package, pinned to the same version as the
+# local ~/TradingAgents checkout (v0.3.0). This makes real runs possible on
+# Streamlit Cloud, where there is no local folder. Locally, run_app.command
+# still uses the TradingAgents venv, so this pin only matters for the cloud.
+tradingagents @ git+https://github.com/TauricResearch/TradingAgents.git@v0.3.0
